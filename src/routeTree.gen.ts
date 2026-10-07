@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GamePeriodRouteImport } from './routes/game-period'
+import { Route as ReviewRouteImport } from './routes/review'
+import { Route as ClassesIndexRouteImport } from './routes/classes.index'
+import { Route as ClassesAddRouteImport } from './routes/classes.add'
+import { Route as PlayIndexRouteImport } from './routes/play.index'
+import { Route as PlayDoneRouteImport } from './routes/play.done'
+import { Route as PlaySessionRouteImport } from './routes/play.session'
+import { Route as PlayTutorialRouteImport } from './routes/play.tutorial'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamePeriodRoute = GamePeriodRouteImport.update({
+  id: '/game-period',
+  path: '/game-period',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewRoute = ReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassesIndexRoute = ClassesIndexRouteImport.update({
+  id: '/classes/',
+  path: '/classes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassesAddRoute = ClassesAddRouteImport.update({
+  id: '/classes/add',
+  path: '/classes/add',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayIndexRoute = PlayIndexRouteImport.update({
+  id: '/play/',
+  path: '/play/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayDoneRoute = PlayDoneRouteImport.update({
+  id: '/play/done',
+  path: '/play/done',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaySessionRoute = PlaySessionRouteImport.update({
+  id: '/play/session',
+  path: '/play/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayTutorialRoute = PlayTutorialRouteImport.update({
+  id: '/play/tutorial',
+  path: '/play/tutorial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/game-period': typeof GamePeriodRoute
+  '/review': typeof ReviewRoute
+  '/classes/add': typeof ClassesAddRoute
+  '/play/done': typeof PlayDoneRoute
+  '/play/session': typeof PlaySessionRoute
+  '/play/tutorial': typeof PlayTutorialRoute
+  '/classes/': typeof ClassesIndexRoute
+  '/play/': typeof PlayIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/game-period': typeof GamePeriodRoute
+  '/review': typeof ReviewRoute
+  '/classes/add': typeof ClassesAddRoute
+  '/play/done': typeof PlayDoneRoute
+  '/play/session': typeof PlaySessionRoute
+  '/play/tutorial': typeof PlayTutorialRoute
+  '/classes': typeof ClassesIndexRoute
+  '/play': typeof PlayIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/game-period': typeof GamePeriodRoute
+  '/review': typeof ReviewRoute
+  '/classes/add': typeof ClassesAddRoute
+  '/play/done': typeof PlayDoneRoute
+  '/play/session': typeof PlaySessionRoute
+  '/play/tutorial': typeof PlayTutorialRoute
+  '/classes/': typeof ClassesIndexRoute
+  '/play/': typeof PlayIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/game-period'
+    | '/review'
+    | '/classes/add'
+    | '/play/done'
+    | '/play/session'
+    | '/play/tutorial'
+    | '/classes/'
+    | '/play/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/game-period'
+    | '/review'
+    | '/classes/add'
+    | '/play/done'
+    | '/play/session'
+    | '/play/tutorial'
+    | '/classes'
+    | '/play'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/game-period'
+    | '/review'
+    | '/classes/add'
+    | '/play/done'
+    | '/play/session'
+    | '/play/tutorial'
+    | '/classes/'
+    | '/play/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  GamePeriodRoute: typeof GamePeriodRoute
+  ReviewRoute: typeof ReviewRoute
+  ClassesAddRoute: typeof ClassesAddRoute
+  PlayDoneRoute: typeof PlayDoneRoute
+  PlaySessionRoute: typeof PlaySessionRoute
+  PlayTutorialRoute: typeof PlayTutorialRoute
+  ClassesIndexRoute: typeof ClassesIndexRoute
+  PlayIndexRoute: typeof PlayIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/game-period': {
+      id: '/game-period'
+      path: '/game-period'
+      fullPath: '/game-period'
+      preLoaderRoute: typeof GamePeriodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/review': {
+      id: '/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof ReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classes/': {
+      id: '/classes/'
+      path: '/classes'
+      fullPath: '/classes/'
+      preLoaderRoute: typeof ClassesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classes/add': {
+      id: '/classes/add'
+      path: '/classes/add'
+      fullPath: '/classes/add'
+      preLoaderRoute: typeof ClassesAddRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/': {
+      id: '/play/'
+      path: '/play'
+      fullPath: '/play/'
+      preLoaderRoute: typeof PlayIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/done': {
+      id: '/play/done'
+      path: '/play/done'
+      fullPath: '/play/done'
+      preLoaderRoute: typeof PlayDoneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/session': {
+      id: '/play/session'
+      path: '/play/session'
+      fullPath: '/play/session'
+      preLoaderRoute: typeof PlaySessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/tutorial': {
+      id: '/play/tutorial'
+      path: '/play/tutorial'
+      fullPath: '/play/tutorial'
+      preLoaderRoute: typeof PlayTutorialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  GamePeriodRoute: GamePeriodRoute,
+  ReviewRoute: ReviewRoute,
+  ClassesAddRoute: ClassesAddRoute,
+  PlayDoneRoute: PlayDoneRoute,
+  PlaySessionRoute: PlaySessionRoute,
+  PlayTutorialRoute: PlayTutorialRoute,
+  ClassesIndexRoute: ClassesIndexRoute,
+  PlayIndexRoute: PlayIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
