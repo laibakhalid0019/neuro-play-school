@@ -1,130 +1,118 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LabelChip, NativeSelect, StaffLayout } from "@/components/lumen";
-import { CLASSES, labelStatus, useStore, type LabelValue } from "@/lib/store";
+import { toast } from "sonner";
+import { AppLayout, EmptyState, LabelChip, NativeSelect } from "@/components/lumen";
+import { estimate, labelStatus, useStore, type LabelValue } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-type Show = "unlabelled" | "labelled" | "all";
 export const Route = createFileRoute("/review")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    c: typeof s.c === "string" ? s.c : "4A",
-    show: (["unlabelled", "labelled", "all"].includes(s.show as string) ? s.show : "unlabelled") as Show,
-    s: typeof s.s === "string" ? s.s : undefined,
-  }),
   head: () => ({
     meta: [
-      { title: "Review and label — Lumen" },
-      { name: "description", content: "Review recorded game sessions and assign screening labels." },
-      { property: "og:title", content: "Review and label — Lumen" },
-      { property: "og:description", content: "Review recorded game sessions and assign screening labels." },
+      { title: "Review and Label — Lumen" },
+      { name: "description", content: "Review recorded game sessions and assign Risk or No Risk screening labels." },
+      { property: "og:title", content: "Review and Label — Lumen" },
+      { property: "og:description", content: "Review recorded game sessions and assign Risk or No Risk screening labels." },
     ],
   }),
   component: Review,
 });
 
-const OPTIONS: { v: LabelValue | "none"; t: string; d: string }[] = [
-  { v: "risk", t: "Risk", d: "Behaviour suggests follow-up is worthwhile." },
-  { v: "norisk", t: "No Risk", d: "No concern from the recorded sessions." },
-  { v: "none", t: "Leave unlabelled", d: "Not sure yet. Decide later." },
-];
+type Choice = LabelValue | "none";
 
 function Review() {
-  const { c, show, s } = Route.useSearch();
-  const nav = useNavigate({ from: "/review" });
-  const { students, sessions, labels, setLabel } = useStore();
-  const played = students.filter((x) => x.classId === c && sessions.some((y) => y.studentCode === x.code));
-  const list = played.filter((x) => show === "all" || (show === "labelled" ? labels[x.code] : !labels[x.code]));
-  const current = (s && students.find((x) => x.code === s)) || list[0];
-  const [choice, setChoice] = useState<LabelValue | "none">("none");
+  const { myClasses, students, sessions, labels, setLabel, reviewFocus, setReviewFocus } = useStore();
+  const focusStudent = reviewFocus ? students.find((s) => s.code === reviewFocus) : undefined;
+  const [cls, setCls] = useState(focusStudent?.classId ?? myClasses[0]?.id ?? "");
+  const [show, setShow] = useState<"unlabelled" | "labelled" | "all">(focusStudent ? "all" : "unlabelled");
+  const [selected, setSelected] = useState<string | null>(reviewFocus);
+  const [choice, setChoice] = useState<Choice>("none");
   const [note, setNote] = useState("");
-  const [saved, setSaved] = useState("");
+  useEffect(() => { if (reviewFocus) setReviewFocus(null); }, [reviewFocus, setReviewFocus]);
 
+  const played = students.filter((s) => s.classId === cls && sessions.some((x) => x.studentCode === s.code));
+  const list = played.filter((s) => show === "all" || (show === "labelled" ? !!labels[s.code] : !labels[s.code]));
+  const current = list.find((s) => s.code === selected) ?? list[0];
+  const code = current?.code;
   useEffect(() => {
-    const l = current ? labels[current.code] : undefined;
-    setChoice(l?.value ?? "none");
-    setNote(l?.note ?? "");
-  }, [current?.code]); // eslint-disable-line react-hooks/exhaustive-deps
+    const l = code ? labels[code] : undefined;
+    setChoice(l ? l.value : "none"); setNote(l?.note ?? "");
+  }, [code]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const mySessions = code ? sessions.filter((s) => s.studentCode === code) : [];
+  const est = estimate(mySessions);
 
   const save = () => {
-    if (!current) return;
-    setLabel(current.code, choice === "none" ? null : choice, note || undefined);
-    setSaved(`Saved for ${current.code}`);
-    const after = played.filter((x) => x.code !== current.code && !labels[x.code]);
-    const idx = played.findIndex((x) => x.code === current.code);
-    const nextOne = after.find((x) => played.indexOf(x) > idx) ?? after[0];
-    nav({ search: (p) => ({ ...p, s: nextOne?.code }) });
+    if (!code) return;
+    setLabel(code, choice === "none" ? null : choice, note || undefined);
+    toast.success(`Saved for ${code}`);
+    const idx = played.findIndex((s) => s.code === code);
+    const next = [...played.slice(idx + 1), ...played.slice(0, idx)].find((s) => !labels[s.code] && s.code !== code);
+    setSelected(next?.code ?? null);
+    if (next && show === "labelled") setShow("unlabelled");
   };
 
-  const rows = current ? sessions.filter((x) => x.studentCode === current.code) : [];
   return (
-    <StaffLayout title="Review and Label">
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <NativeSelect aria-label="Class" value={c} onChange={(e) => nav({ search: { c: e.target.value, show } })}>
-          {CLASSES.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+    <AppLayout area="staff" title="Review and Label"
+      actions={<>
+        <NativeSelect aria-label="Class" value={cls} onChange={(e) => { setCls(e.target.value); setSelected(null); }}>{myClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</NativeSelect>
+        <NativeSelect aria-label="Show" value={show} onChange={(e) => { setShow(e.target.value as typeof show); setSelected(null); }}>
+          <option value="unlabelled">Not labelled</option><option value="labelled">Labelled</option><option value="all">All</option>
         </NativeSelect>
-        <span className="font-semibold">Show:</span>
-        {(["unlabelled", "labelled", "all"] as Show[]).map((v) => (
-          <Button key={v} size="sm" variant={show === v ? "default" : "outline"} onClick={() => nav({ search: { c, show: v } })}>
-            {v === "unlabelled" ? "Not labelled" : v === "labelled" ? "Labelled" : "All"}
-          </Button>
-        ))}
-        {saved && <span className="text-sm font-semibold text-success">{saved}</span>}
-      </div>
-      <div className="grid gap-6 md:grid-cols-[220px_1fr]">
-        <Card className="max-h-[640px] overflow-auto p-2">
-          {list.length === 0 && <p className="p-3 text-sm text-muted-foreground">No students here.</p>}
-          {list.map((x) => (
-            <button key={x.code} onClick={() => nav({ search: (p) => ({ ...p, s: x.code }) })}
-              className={cn("flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left font-semibold hover:bg-muted", current?.code === x.code && "bg-accent text-navy")}>
-              <span className={cn("h-2.5 w-2.5 rounded-full", labels[x.code] ? "bg-success" : "bg-border")} />{x.code}
-            </button>
-          ))}
-        </Card>
-        {current ? (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <h2 className="text-xl font-bold text-navy">{current.code}</h2>
-                <LabelChip status={labelStatus(current.code, labels, sessions)} />
+      </>}>
+      {!myClasses.length ? <EmptyState title="No classes assigned" text="Ask your institution admin to assign you a class." /> : (
+        <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+          <Card className="max-h-[70vh] overflow-y-auto p-2 shadow-soft">
+            {list.length ? list.map((s) => (
+              <button key={s.code} onClick={() => setSelected(s.code)}
+                className={cn("flex w-full items-center justify-between rounded-lg px-3 py-2 text-left font-mono text-sm font-semibold", s.code === code ? "bg-accent text-navy" : "hover:bg-muted")}>
+                {s.code}{labels[s.code] && <span className="h-2.5 w-2.5 rounded-full bg-success" aria-label="Labelled" />}
+              </button>
+            )) : <p className="p-4 text-center text-sm text-muted-foreground">{show === "unlabelled" ? "All students in this class are labelled." : "No students to show."}</p>}
+          </Card>
+          {current && code ? (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3"><h2 className="font-mono text-2xl font-extrabold text-navy">{code}</h2><LabelChip status={labelStatus(code, labels, sessions)} /></div>
+              <Card className="overflow-x-auto shadow-soft">
+                <h3 className="px-4 pt-4 font-bold text-navy">Recorded game sessions</h3>
+                <table className="mt-2 w-full text-sm">
+                  <thead className="bg-secondary text-left text-navy"><tr>{["Date", "Session time", "Accuracy", "Errors", "Response time"].map((h) => <th key={h} className="px-4 py-2 font-bold">{h}</th>)}</tr></thead>
+                  <tbody className="divide-y">
+                    {mySessions.map((s) => <tr key={s.id}><td className="px-4 py-2">{s.date}</td><td className="px-4 py-2">{s.minutes} min</td><td className="px-4 py-2">{s.accuracy}%</td><td className="px-4 py-2">{s.errors}</td><td className="px-4 py-2">{s.rtMs} ms</td></tr>)}
+                  </tbody>
+                </table>
+              </Card>
+              <div className="grid gap-6 xl:grid-cols-2">
+                <Card className="space-y-3 p-6 shadow-soft">
+                  <h3 className="font-bold text-navy">Screening estimate (model)</h3>
+                  {est ? <>
+                    <LabelChip status={est.value} />
+                    <div className="h-3 overflow-hidden rounded-full bg-muted"><div className={cn("h-full", est.value === "Risk" ? "bg-risk" : "bg-success")} style={{ width: `${Math.round(est.prob * 100)}%` }} /></div>
+                    <p className="text-sm">Estimated probability of Risk: <b>{Math.round(est.prob * 100)}%</b></p>
+                  </> : <p className="text-sm text-muted-foreground">No estimate yet.</p>}
+                  <p className="text-xs text-muted-foreground">Screening estimate, not a diagnosis. Shown for reference; your label is independent.</p>
+                </Card>
+                <Card className="space-y-3 p-6 shadow-soft">
+                  <h3 className="font-bold text-navy">Assign label</h3>
+                  <div role="radiogroup" className="grid grid-cols-3 gap-2">
+                    {([["risk", "Risk"], ["norisk", "No Risk"], ["none", "Leave unlabelled"]] as const).map(([v, l]) => (
+                      <button key={v} role="radio" aria-checked={choice === v} onClick={() => setChoice(v)}
+                        className={cn("rounded-xl border-2 p-3 text-sm font-bold", choice === v ? "border-primary bg-accent text-navy" : "border-border text-muted-foreground hover:border-primary/50")}>{l}</button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Choose from your professional judgement. Leave it unlabelled if you are unsure. The label is saved as the target value for training.</p>
+                  <div className="space-y-1.5"><Label htmlFor="rv-note">Note (optional)</Label><Textarea id="rv-note" value={note} onChange={(e) => setNote(e.target.value)} rows={2} /></div>
+                  <Button className="w-full" onClick={save}>Save label and next</Button>
+                  <p className="text-xs text-muted-foreground">Screening label only, not a diagnosis. Saved with your name and time.</p>
+                </Card>
               </div>
-              <h3 className="mb-2 font-bold">Recorded game sessions</h3>
-              <Table>
-                <TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Session time</TableHead><TableHead>Accuracy</TableHead><TableHead>Errors</TableHead><TableHead>Response time</TableHead></TableRow></TableHeader>
-                <TableBody>
-                  {rows.map((r) => (
-                    <TableRow key={r.id}><TableCell>{r.date}</TableCell><TableCell>{r.minutes} min</TableCell><TableCell>{r.accuracy}%</TableCell><TableCell>{r.errors}</TableCell><TableCell>{r.rtMs} ms</TableCell></TableRow>
-                  ))}
-                  {rows.length === 0 && <TableRow><TableCell colSpan={5} className="text-muted-foreground">No sessions yet</TableCell></TableRow>}
-                </TableBody>
-              </Table>
-            </Card>
-            <Card className="p-6">
-              <h3 className="text-lg font-bold text-navy">Assign label</h3>
-              <p className="mb-4 text-sm text-muted-foreground">Choose from your professional judgement. Leave it unlabelled if you are unsure. The label is saved as the target value for training.</p>
-              <div role="radiogroup" className="grid gap-3 sm:grid-cols-3">
-                {OPTIONS.map((o) => (
-                  <button key={o.v} role="radio" aria-checked={choice === o.v} onClick={() => setChoice(o.v)}
-                    className={cn("rounded-xl border-2 p-4 text-left transition", choice === o.v ? "border-primary bg-accent" : "border-border hover:border-primary/50")}>
-                    <span className="flex items-center gap-2 font-bold text-navy">
-                      <span className={cn("h-4 w-4 rounded-full border-2", choice === o.v ? "border-primary bg-primary" : "border-input")} />{o.t}
-                    </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">{o.d}</span>
-                  </button>
-                ))}
-              </div>
-              <Textarea className="mt-4" placeholder="Optional note" value={note} onChange={(e) => setNote(e.target.value)} />
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground">Screening label only, not a diagnosis. Saved with your name and time.</p>
-                <Button onClick={save}>Save label and next</Button>
-              </div>
-            </Card>
-          </div>
-        ) : <Card className="p-8 text-muted-foreground">All students in this view are done. Try another filter.</Card>}
-      </div>
-    </StaffLayout>
+            </div>
+          ) : <EmptyState title="Nothing to review" text="Run a game period to record new sessions, or change the filter." />}
+        </div>
+      )}
+    </AppLayout>
   );
 }
