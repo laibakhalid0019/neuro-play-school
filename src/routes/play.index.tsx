@@ -25,9 +25,14 @@ function Start() {
   const go = (e: FormEvent) => {
     e.preventDefault();
     const code = sc.trim().toUpperCase();
+    const cls = cc.trim().toUpperCase();
+    const demo = cls === DEMO_CLASS_CODE && code === DEMO_STUDENT_CODE;
+    if (!demo) {
+      if (!period?.open || cls !== period.code) return setErr("Hmm, that class code is not open. Check the board or ask your teacher.");
+      if (!period.seats[code]) return setErr("Hmm, that student code is not right. Ask your teacher.");
+    }
     if (!students.some((s) => s.code === code)) return setErr("Hmm, that student code is not right. Ask your teacher.");
-    if (period?.open && cc.trim().toUpperCase() !== period.code) return setErr("Check the class code on the board.");
-    setPlayer({ classCode: cc.trim().toUpperCase(), studentCode: code });
+    setPlayer({ classCode: cls, studentCode: code });
     nav({ to: "/play/tutorial" });
   };
   const field = "h-16 w-full rounded-2xl border-2 border-amber/50 bg-card px-5 text-center text-2xl font-bold uppercase tracking-widest text-navy focus:border-amber focus:outline-none";
