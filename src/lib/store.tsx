@@ -244,8 +244,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     recordSession: (s) => {
       setSessions((ss) => [...ss, { ...s, id: `${s.studentCode}-${Date.now()}`, date: today() }]);
       setPeriod((p) => {
-        if (!p || !p.open || !p.seats[s.studentCode]) return p;
+        if (!p || !p.open) return p;
         const seat = p.seats[s.studentCode];
+        if (!seat) return p;
         return { ...p, seats: { ...p.seats, [s.studentCode]: { ...seat, status: "Finished", recorded: true } } };
       });
     },
