@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { AppLayout, EmptyState, NativeSelect, Pill } from "@/components/lumen";
-import { useStore, type StaffRole } from "@/lib/store";
+import { AppLayout, EmptyState, Pill } from "@/components/lumen";
+import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
