@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function AddStudentDialog({ classes, defaultClassId }: { classes: ClassInfo[]; defaultClassId?: string }) {
+export function AddStudentDialog({ classes, defaultClassId }: { classes: ClassInfo[]; defaultClassId?: string | undefined }) {
   const { addStudent, nextStudentCode } = useStore();
   const [open, setOpen] = useState(false);
   const [classId, setClassId] = useState(defaultClassId ?? classes[0]?.id ?? "");
