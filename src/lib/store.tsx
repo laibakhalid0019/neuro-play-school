@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-export type Role = "Admin" | "Teacher" | "Clinician";
-export type StaffRole = "Teacher" | "Clinician";
+export type Role = "Admin" | "Teacher";
+export type StaffRole = "Teacher";
 export type LabelValue = "risk" | "norisk";
 export type PlayStatus = "Waiting" | "Playing" | "Paused" | "Finished";
 export type Readiness = "Ready for training" | "In progress" | "Not ready";
@@ -49,14 +49,12 @@ const INITIAL_CLASSES: ClassInfo[] = [
 const INITIAL_STAFF: Staff[] = [
   { id: "t1", name: "Ms. Okafor", email: "okafor@riverside.edu", role: "Teacher", classIds: ["KG1", "KG2"], status: "Active" },
   { id: "t2", name: "Mr. Haddad", email: "haddad@riverside.edu", role: "Teacher", classIds: ["G1"], status: "Active" },
-  { id: "t3", name: "Dr. Lindqvist", email: "lindqvist@riverside.edu", role: "Clinician", classIds: ["KG1", "KG2", "G1"], status: "Active" },
   { id: "t4", name: "Ms. Brennan", email: "brennan@riverside.edu", role: "Teacher", classIds: [], status: "Pending" },
 ];
 
 export const DEMO_USERS: Record<Role, User> = {
   Admin: { name: "Mr. Adeyemi", email: "admin@riverside.edu", role: "Admin", institution: INSTITUTION },
   Teacher: { name: "Ms. Okafor", email: "okafor@riverside.edu", role: "Teacher", institution: INSTITUTION, staffId: "t1" },
-  Clinician: { name: "Dr. Lindqvist", email: "lindqvist@riverside.edu", role: "Clinician", institution: INSTITUTION, staffId: "t3" },
 };
 
 function seedData() {
@@ -129,6 +127,7 @@ interface Store {
   nextStudentCode: (classId: string) => string;
   addStaff: (s: Omit<Staff, "id">) => void;
   updateStaff: (id: string, patch: Partial<Staff>) => void;
+  removeStaff: (id: string) => void;
   setLabel: (code: string, value: LabelValue | null, note?: string) => void;
   period: Period | null;
   startPeriod: (classId: string) => void;
@@ -214,6 +213,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     addStaff: (s) => { setStaff((x) => [...x, { ...s, id: `t${Date.now()}` }]); log(s.status === "Pending" ? `${s.name} requested access` : `${s.name} added as ${s.role}`); },
     updateStaff: (id, patch) => setStaff((x) => x.map((s) => (s.id === id ? { ...s, ...patch } : s))),
+    removeStaff: (id) => {
+      const s = staff.find((x) => x.id === id);
+      if (s) log(`${s.name}'s access request denied`);
+      setStaff((x) => x.filter((y) => y.id !== id));
+    },
     setLabel: (code, value, note) =>
       setLabels((l) => {
         const n = { ...l };
