@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { AppLayout, EmptyState, NativeSelect, Pill } from "@/components/lumen";
-import { useStore, type StaffRole } from "@/lib/store";
+import { AppLayout, EmptyState, Pill } from "@/components/lumen";
+import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -27,10 +27,9 @@ function AddTeacher() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<StaffRole>("Teacher");
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    addStaff({ name, email, role, classIds: [], status: "Active" });
+    addStaff({ name, email, role: "Teacher", classIds: [], status: "Active" });
     toast.success(`${name} added`);
     setOpen(false); setName(""); setEmail("");
   };
@@ -42,8 +41,6 @@ function AddTeacher() {
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-1.5"><Label htmlFor="at-n">Name</Label><Input id="at-n" value={name} onChange={(e) => setName(e.target.value)} required /></div>
           <div className="space-y-1.5"><Label htmlFor="at-e">Email</Label><Input id="at-e" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-          <div className="space-y-1.5"><Label htmlFor="at-r">Role</Label>
-            <NativeSelect id="at-r" className="w-full" value={role} onChange={(e) => setRole(e.target.value as StaffRole)}><option>Teacher</option><option>Clinician</option></NativeSelect></div>
           <DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button><Button type="submit">Save</Button></DialogFooter>
         </form>
       </DialogContent>
@@ -52,7 +49,7 @@ function AddTeacher() {
 }
 
 function TeachersPage() {
-  const { staff, classes, updateStaff, log } = useStore();
+  const { staff, classes, updateStaff, removeStaff, log } = useStore();
   return (
     <AppLayout area="admin" title="Teachers" actions={<AddTeacher />}>
       <Card className="overflow-x-auto shadow-soft">
@@ -79,8 +76,13 @@ function TeachersPage() {
                     </DropdownMenu>
                   </td>
                   <td className="px-4 py-3"><Pill tone={t.status === "Active" ? "success" : "amber"}>{t.status}</Pill></td>
-                  <td className="px-4 py-3 text-right">
-                    {t.status === "Pending" && <Button size="sm" onClick={() => { updateStaff(t.id, { status: "Active" }); log(`${t.name} approved as ${t.role}`); toast.success(`${t.name} approved`); }}>Approve</Button>}
+                  <td className="px-4 py-3 text-right space-x-2">
+                    {t.status === "Pending" && (
+                      <>
+                        <Button variant="outline" size="sm" onClick={() => { removeStaff(t.id); toast.success(`${t.name}'s request denied`); }}>Deny</Button>
+                        <Button size="sm" onClick={() => { updateStaff(t.id, { status: "Active" }); log(`${t.name} approved as ${t.role}`); toast.success(`${t.name} approved`); }}>Approve</Button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

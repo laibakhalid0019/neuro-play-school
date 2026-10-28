@@ -31,8 +31,8 @@ function Tutorial() {
       <h1 className="mb-6 text-2xl font-extrabold text-navy">Tutorial</h1>
       <div className="w-full max-w-lg rounded-[2rem] bg-card p-10 text-center shadow-soft">
         <Star className="mx-auto h-40 w-40 animate-shine fill-amber text-amber" strokeWidth={1.2} />
-        <p className="mt-6 text-3xl font-extrabold text-navy">{STEPS[i].t}</p>
-        <p className="mt-2 text-xl text-muted-foreground">{STEPS[i].s}</p>
+        <p className="mt-6 text-3xl font-extrabold text-navy">{STEPS[i]?.t}</p>
+        <p className="mt-2 text-xl text-muted-foreground">{STEPS[i]?.s}</p>
         <div className="mt-6 flex justify-center gap-2" aria-label={`Step ${i + 1} of 3`}>
           {STEPS.map((_, k) => <span key={k} className={cn("h-3 w-3 rounded-full", k === i ? "bg-amber" : "bg-border")} />)}
         </div>

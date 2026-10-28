@@ -1,17 +1,17 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-export type Role = "Admin" | "Teacher" | "Clinician";
-export type StaffRole = "Teacher" | "Clinician";
+export type Role = "Admin" | "Teacher";
+export type StaffRole = "Teacher";
 export type LabelValue = "risk" | "norisk";
 export type PlayStatus = "Waiting" | "Playing" | "Paused" | "Finished";
 export type Readiness = "Ready for training" | "In progress" | "Not ready";
 
 export interface ClassInfo { id: string; name: string }
 export interface Staff { id: string; name: string; email: string; role: StaffRole; classIds: string[]; status: "Active" | "Pending" }
-export interface Student { code: string; classId: string; dob: string; year: string; gender?: string; consent: boolean }
+export interface Student { code: string; classId: string; dob: string; year: string; gender?: string | undefined; consent: boolean }
 export interface Session { id: string; studentCode: string; date: string; minutes: number; accuracy: number; errors: number; rtMs: number }
-export interface Label { value: LabelValue; note?: string; by: string; at: string }
-export interface Seat { pc: number; status: PlayStatus; recorded?: boolean }
+export interface Label { value: LabelValue; note?: string | undefined; by: string; at: string }
+export interface Seat { pc: number; status: PlayStatus; recorded?: boolean | undefined }
 export interface Period { classId: string; code: string; lab: string; open: boolean; seats: Record<string, Seat> }
 export interface Activity { id: string; text: string; at: string }
 export interface User { name: string; email: string; role: Role; institution: string; staffId?: string }
@@ -49,14 +49,12 @@ const INITIAL_CLASSES: ClassInfo[] = [
 const INITIAL_STAFF: Staff[] = [
   { id: "t1", name: "Ms. Okafor", email: "okafor@riverside.edu", role: "Teacher", classIds: ["KG1", "KG2"], status: "Active" },
   { id: "t2", name: "Mr. Haddad", email: "haddad@riverside.edu", role: "Teacher", classIds: ["G1"], status: "Active" },
-  { id: "t3", name: "Dr. Lindqvist", email: "lindqvist@riverside.edu", role: "Clinician", classIds: ["KG1", "KG2", "G1"], status: "Active" },
   { id: "t4", name: "Ms. Brennan", email: "brennan@riverside.edu", role: "Teacher", classIds: [], status: "Pending" },
 ];
 
 export const DEMO_USERS: Record<Role, User> = {
   Admin: { name: "Mr. Adeyemi", email: "admin@riverside.edu", role: "Admin", institution: INSTITUTION },
   Teacher: { name: "Ms. Okafor", email: "okafor@riverside.edu", role: "Teacher", institution: INSTITUTION, staffId: "t1" },
-  Clinician: { name: "Dr. Lindqvist", email: "lindqvist@riverside.edu", role: "Clinician", institution: INSTITUTION, staffId: "t3" },
 };
 
 function seedData() {
@@ -66,7 +64,7 @@ function seedData() {
   const sessions: Session[] = [];
   const labels: Record<string, Label> = {};
   for (const c of INITIAL_CLASSES) {
-    const [size, played, labelled, withRisk] = plan[c.id];
+    const [size, played, labelled, withRisk] = plan[c.id] ?? [0, 0, 0, false];
     const birthYear = c.id === "G1" ? 2019 : c.id === "KG2" ? 2020 : 2021;
     for (let i = 1; i <= size; i++) {
       const code = `S-${c.id}-${pad(i)}`;
@@ -88,8 +86,8 @@ export function readiness(classId: string, students: Student[], sessions: Sessio
   const played = codes.filter((c) => sessions.some((s) => s.studentCode === c));
   const sessionCount = sessions.filter((s) => codes.includes(s.studentCode)).length;
   const labelled = codes.filter((c) => labels[c]);
-  const hasRisk = labelled.some((c) => labels[c].value === "risk");
-  const hasNoRisk = labelled.some((c) => labels[c].value === "norisk");
+  const hasRisk = labelled.some((c) => labels[c]?.value === "risk");
+  const hasNoRisk = labelled.some((c) => labels[c]?.value === "norisk");
   const status: Readiness = labelled.length >= MIN_LABELS && hasRisk && hasNoRisk ? "Ready for training" : labelled.length >= 10 ? "In progress" : "Not ready";
   return { students: codes.length, played: played.length, sessions: sessionCount, labelled: labelled.length, hasRisk, hasNoRisk, status };
 }
@@ -129,6 +127,7 @@ interface Store {
   nextStudentCode: (classId: string) => string;
   addStaff: (s: Omit<Staff, "id">) => void;
   updateStaff: (id: string, patch: Partial<Staff>) => void;
+  removeStaff: (id: string) => void;
   setLabel: (code: string, value: LabelValue | null, note?: string) => void;
   period: Period | null;
   startPeriod: (classId: string) => void;
@@ -179,6 +178,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         for (const code of Object.keys(seats)) {
           if (player?.studentCode === code) continue;
           const s = seats[code];
+          if (!s) continue;
           const r = Math.random();
           if (s.status === "Waiting" && r < 0.35) seats[code] = { ...s, status: "Playing" };
           else if (s.status === "Playing" && r < 0.05) seats[code] = { ...s, status: "Paused" };
@@ -214,6 +214,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     addStaff: (s) => { setStaff((x) => [...x, { ...s, id: `t${Date.now()}` }]); log(s.status === "Pending" ? `${s.name} requested access` : `${s.name} added as ${s.role}`); },
     updateStaff: (id, patch) => setStaff((x) => x.map((s) => (s.id === id ? { ...s, ...patch } : s))),
+    removeStaff: (id) => {
+      const s = staff.find((x) => x.id === id);
+      if (s) log(`${s.name}'s access request denied`);
+      setStaff((x) => x.filter((y) => y.id !== id));
+    },
     setLabel: (code, value, note) =>
       setLabels((l) => {
         const n = { ...l };
@@ -238,7 +243,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     clearPeriod: () => setPeriod(null),
     recordSession: (s) => {
       setSessions((ss) => [...ss, { ...s, id: `${s.studentCode}-${Date.now()}`, date: today() }]);
-      setPeriod((p) => (p && p.open && p.seats[s.studentCode] ? { ...p, seats: { ...p.seats, [s.studentCode]: { ...p.seats[s.studentCode], status: "Finished", recorded: true } } } : p));
+      setPeriod((p) => {
+        if (!p || !p.open) return p;
+        const seat = p.seats[s.studentCode];
+        if (!seat) return p;
+        return { ...p, seats: { ...p.seats, [s.studentCode]: { ...seat, status: "Finished", recorded: true } } };
+      });
     },
     completeRound: () => {
       setFederation((f) => ({ minor: f.minor + 1, round: f.round + 1, state: "Up to date", lastRoundAt: today() }));

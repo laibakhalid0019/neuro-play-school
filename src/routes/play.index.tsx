@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Logo, StudentShell } from "@/components/lumen";
-import { useStore } from "@/lib/store";
+import { DEMO_CLASS_CODE, DEMO_STUDENT_CODE, useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/play/")({
