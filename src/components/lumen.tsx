@@ -167,7 +167,7 @@ export function DemoMenu() {
       </button>
       {open && (
         <div className="grid gap-1 border-t p-2">
-          {([["Admin", "Admin view"], ["Teacher", "Teacher view"], ["Clinician", "Clinician view"], ["Student", "Student lab screen"]] as const).map(([r, l]) => (
+          {([["Admin", "Admin view"], ["Teacher", "Teacher view"], ["Student", "Student lab screen"]] as const).map(([r, l]) => (
             <button key={r} onClick={() => go(r)} className="rounded-lg px-3 py-2 text-left text-sm font-semibold text-foreground hover:bg-accent">{l}</button>
           ))}
         </div>
