@@ -48,6 +48,7 @@
   --color-ring-offset-background: var(--background);
   --color-navy: var(--navy);
   --color-navy-foreground: var(--navy-foreground);
+  --color-navy-deep: var(--navy-deep);
   --color-amber: var(--amber);
   --color-amber-foreground: var(--amber-foreground);
   --color-cream: var(--cream);
@@ -84,6 +85,7 @@
   --primary-foreground: oklch(0.99 0 0);
   --navy: oklch(0.33 0.08 262);
   --navy-foreground: oklch(0.97 0.01 250);
+  --navy-deep: oklch(0.252 0.056 264);
   --amber: oklch(0.78 0.15 70);
   --amber-foreground: oklch(0.3 0.07 262);
   --cream: oklch(0.975 0.03 85);
@@ -167,3 +169,20 @@
 @layer base { body { font-family: var(--font-sans); } }
 @keyframes shine { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 0 transparent);} 50% { transform: scale(1.12); filter: drop-shadow(0 0 18px var(--amber)); } }
 @utility animate-shine { animation: shine 1.6s ease-in-out infinite; }
+
+/* Login scene animations (inline SVG fallback on the log in / pending pages) */
+.lumen-scene .ls-star { animation: ls-twinkle 3.2s ease-in-out infinite; }
+.lumen-scene .ls-glow,
+.lumen-scene .ls-rays { transform-box: view-box; transform-origin: 50% 60.3%; }
+.lumen-scene .ls-glow { animation: ls-pulse 4.5s ease-in-out infinite; }
+.lumen-scene .ls-rays { animation: ls-spin 70s linear infinite; }
+.lumen-scene .ls-trail { animation: ls-dots 4.5s linear infinite; }
+.lumen-scene .ls-orb-glow { animation: ls-orb 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) {
+  .lumen-scene, .lumen-scene * { animation: none !important; }
+}
+@keyframes ls-twinkle { 0%,100% { opacity: 0.35; } 50% { opacity: 0.95; } }
+@keyframes ls-pulse { 0%,100% { opacity: 0.55; transform: scale(0.96); } 50% { opacity: 0.85; transform: scale(1.06); } }
+@keyframes ls-spin { to { transform: rotate(360deg); } }
+@keyframes ls-dots { from { stroke-dashoffset: 24.2; } to { stroke-dashoffset: 0; } }
+@keyframes ls-orb { 0%,100% { opacity: 0.5; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.15); } }

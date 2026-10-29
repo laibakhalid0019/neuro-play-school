@@ -74,7 +74,7 @@ export function AppLayout({ area, children, title, actions, footer = true }: { a
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-6 pt-8 pb-28">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-extrabold text-navy">{title}</h1>
           <div className="flex flex-wrap gap-2">{actions}</div>
@@ -147,7 +147,7 @@ export function NativeSelect({ className, ...p }: SelectHTMLAttributes<HTMLSelec
 }
 
 export function StudentShell({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-6 py-10">{children}</div>;
+  return <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-6 pt-10 pb-28">{children}</div>;
 }
 
 export function DemoMenu() {
@@ -160,7 +160,7 @@ export function DemoMenu() {
     setOpen(false);
   };
   return (
-    <div className="fixed bottom-4 left-4 z-50 w-56 rounded-xl border bg-card shadow-soft">
+    <div className="fixed right-4 bottom-4 z-[60] w-56 rounded-xl border bg-card shadow-soft">
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center justify-between gap-2 px-3 py-2 text-sm font-bold text-navy">
         <span className="inline-flex items-center gap-2"><MonitorPlay className="h-4 w-4 text-amber" />Demo mode</span>
         {open ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
