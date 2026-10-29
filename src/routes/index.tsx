@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Building2, GraduationCap } from "lucide-react";
-import { Logo } from "@/components/lumen";
+import { Building2, Check, GraduationCap, Stethoscope } from "lucide-react";
+import { LoginPanel } from "@/components/login-panel";
 import { DEMO_USERS, INSTITUTION, useStore, type Role } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,17 +25,28 @@ export const Route = createFileRoute("/")({
 const ROLES: { role: Role; label: string; icon: typeof Building2 }[] = [
   { role: "Admin", label: "Institution Admin", icon: Building2 },
   { role: "Teacher", label: "Teacher", icon: GraduationCap },
+  { role: "Clinician", label: "Clinician", icon: Stethoscope },
 ];
 
 function RolePicker({ value, onChange }: { value: Role; onChange: (r: Role) => void }) {
   return (
-    <div role="radiogroup" aria-label="Role" className="grid grid-cols-3 gap-2">
-      {ROLES.map(({ role, label, icon: Icon }) => (
-        <button type="button" key={role} role="radio" aria-checked={value === role} onClick={() => onChange(role)}
-          className={cn("flex flex-col items-center gap-1 rounded-xl border-2 p-3 text-xs font-bold transition-colors", value === role ? "border-primary bg-accent text-navy" : "border-border text-muted-foreground hover:border-primary/50")}>
-          <Icon className="h-5 w-5" />{label}
-        </button>
-      ))}
+    <div className="space-y-2">
+      <span className="block text-sm font-semibold text-muted-foreground">I am signing in as</span>
+      <div role="radiogroup" aria-label="Role" className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
+        {ROLES.map(({ role, label, icon: Icon }) => (
+          <button type="button" key={role} role="radio" aria-checked={value === role} onClick={() => onChange(role)}
+            className={cn("relative flex h-[84px] flex-col items-center justify-center gap-1 rounded-xl border-2 px-2 text-xs font-bold transition-colors",
+              value === role ? "border-primary bg-accent text-navy" : "border-border text-muted-foreground hover:border-primary/50")}>
+            {value === role && (
+              <span aria-hidden className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary">
+                <Check className="h-2.5 w-2.5 text-primary-foreground" />
+              </span>
+            )}
+            <Icon className="h-5 w-5 shrink-0" />
+            <span className="text-center leading-tight">{label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -118,15 +129,8 @@ function RegisterForm() {
 function LoginPage() {
   return (
     <div className="grid min-h-screen md:grid-cols-2">
-      <section className="flex flex-col justify-between bg-navy p-10 text-navy-foreground">
-        <Logo tone="light" />
-        <div className="max-w-md space-y-4">
-          <h1 className="text-4xl font-extrabold leading-tight">Staff portal for your institution</h1>
-          <p className="text-lg opacity-80">Part of the Lumen community. Data stays in your institution.</p>
-        </div>
-        <p className="text-sm opacity-60">Screening estimate, not a diagnosis.</p>
-      </section>
-      <section className="flex items-center justify-center p-8">
+      <LoginPanel />
+      <section className="flex items-center justify-center p-8 pb-28">
         <Card className="w-full max-w-md p-8 shadow-soft">
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="login">Log In</TabsTrigger><TabsTrigger value="register">Register</TabsTrigger></TabsList>
