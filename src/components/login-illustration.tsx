@@ -57,25 +57,13 @@ function School({ x }: { x: number }) {
   );
 }
 
-function Clinic({ x }: { x: number }) {
-  return (
-    <g>
-      <rect x={x} y={200} width={64} height={48} rx={2} fill="var(--secondary)" />
-      <rect x={x + 28} y={208} width={8} height={24} rx={1} fill="var(--success)" />
-      <rect x={x + 20} y={216} width={24} height={8} rx={1} fill="var(--success)" />
-      <rect x={x + 8} y={234} width={10} height={10} rx={1} fill="var(--amber)" opacity={0.85} />
-      <rect x={x + 46} y={234} width={10} height={10} rx={1} fill="var(--amber)" opacity={0.85} />
-    </g>
-  );
-}
-
-/** Inline SVG fallback scene: sun rising over a school and a clinic. */
+/** Inline SVG fallback scene: sun rising over a row of school buildings. */
 export function SunriseScene({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 520 340"
       role="img"
-      aria-label="Sun rising over a school and a clinic, with secure data trails curving up to the light"
+      aria-label="Sun rising over a row of school buildings, with secure data trails curving up to the light"
       className={cn("lumen-scene h-auto w-full", className)}
     >
       <defs>
@@ -132,8 +120,8 @@ export function SunriseScene({ className }: { className?: string }) {
       <Padlock x={320} y={176} />
       <Padlock x={432} y={162} />
       <School x={48} />
-      <Clinic x={168} />
-      <Clinic x={288} />
+      <School x={168} />
+      <School x={288} />
       <School x={392} />
 
       <path

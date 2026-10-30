@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Building2, Check, GraduationCap, Stethoscope } from "lucide-react";
+import { Building2, Check, Gamepad2, GraduationCap } from "lucide-react";
 import { LoginPanel } from "@/components/login-panel";
 import { DEMO_USERS, INSTITUTION, useStore, type Role } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/")({
 const ROLES: { role: Role; label: string; icon: typeof Building2 }[] = [
   { role: "Admin", label: "Institution Admin", icon: Building2 },
   { role: "Teacher", label: "Teacher", icon: GraduationCap },
-  { role: "Clinician", label: "Clinician", icon: Stethoscope },
 ];
 
 function RolePicker({ value, onChange }: { value: Role; onChange: (r: Role) => void }) {
@@ -46,6 +45,11 @@ function RolePicker({ value, onChange }: { value: Role; onChange: (r: Role) => v
             <span className="text-center leading-tight">{label}</span>
           </button>
         ))}
+        <Link to="/play" role="button"
+          className="relative flex h-[84px] flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-amber/60 bg-amber/10 px-2 text-xs font-bold text-navy transition-colors hover:bg-amber/20">
+          <Gamepad2 className="h-5 w-5 shrink-0 text-amber" />
+          <span className="text-center leading-tight">Student screen</span>
+        </Link>
       </div>
     </div>
   );

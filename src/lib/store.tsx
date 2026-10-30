@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-export type Role = "Admin" | "Teacher" | "Clinician";
-export type StaffRole = "Teacher" | "Clinician";
+export type Role = "Admin" | "Teacher";
+export type StaffRole = "Teacher";
 export type LabelValue = "risk" | "norisk";
 export type PlayStatus = "Waiting" | "Playing" | "Paused" | "Finished";
 export type Readiness = "Ready for training" | "In progress" | "Not ready";
@@ -55,7 +55,6 @@ const INITIAL_STAFF: Staff[] = [
 export const DEMO_USERS: Record<Role, User> = {
   Admin: { name: "Mr. Adeyemi", email: "admin@riverside.edu", role: "Admin", institution: INSTITUTION },
   Teacher: { name: "Ms. Okafor", email: "okafor@riverside.edu", role: "Teacher", institution: INSTITUTION, staffId: "t1" },
-  Clinician: { name: "Dr. Mensah", email: "mensah@riverside.edu", role: "Clinician", institution: INSTITUTION },
 };
 
 function seedData() {
