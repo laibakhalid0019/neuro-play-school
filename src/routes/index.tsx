@@ -45,6 +45,11 @@ function RolePicker({ value, onChange }: { value: Role; onChange: (r: Role) => v
             <span className="text-center leading-tight">{label}</span>
           </button>
         ))}
+        <Link to="/play" role="button"
+          className="relative flex h-[84px] flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-amber/60 bg-amber/10 px-2 text-xs font-bold text-navy transition-colors hover:bg-amber/20">
+          <Gamepad2 className="h-5 w-5 shrink-0 text-amber" />
+          <span className="text-center leading-tight">Student screen</span>
+        </Link>
       </div>
     </div>
   );
