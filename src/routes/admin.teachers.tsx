@@ -14,9 +14,9 @@ export const Route = createFileRoute("/admin/teachers")({
   head: () => ({
     meta: [
       { title: "Teachers — Lumen admin" },
-      { name: "description", content: "Manage teachers and clinicians, approve requests and assign classes." },
+      { name: "description", content: "Manage teachers, approve requests and assign classes." },
       { property: "og:title", content: "Teachers — Lumen admin" },
-      { property: "og:description", content: "Manage teachers and clinicians, approve requests and assign classes." },
+      { property: "og:description", content: "Manage teachers, approve requests and assign classes." },
     ],
   }),
   component: TeachersPage,
