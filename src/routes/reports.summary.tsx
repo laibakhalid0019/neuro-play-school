@@ -4,7 +4,6 @@ import { Breadcrumbs, Logo, PageBack } from "@/components/lumen";
 import { LabelChip } from "@/components/lumen";
 import { labelStatus, useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { NativeSelect } from "@/components/lumen";
 
 export const Route = createFileRoute("/reports/summary")({
@@ -113,6 +112,3 @@ function ClassSummary() {
     </div>
   );
 }
-
-// Local Card import kept out of the tree when unused.
-void Card;
