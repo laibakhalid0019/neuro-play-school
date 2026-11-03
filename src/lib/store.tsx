@@ -148,6 +148,23 @@ const Ctx = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const initial = useMemo(seedData, []);
   const [user, setUser] = useState<User | null>(null);
+  // Signed-in user persists across refreshes (localStorage, client only).
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("lumen-user");
+      if (raw) setUser(JSON.parse(raw) as User);
+    } catch { /* ignore */ }
+    setHydrated(true);
+  }, []);
+  const login = (u: User) => {
+    setUser(u);
+    try { localStorage.setItem("lumen-user", JSON.stringify(u)); } catch { /* ignore */ }
+  };
+  const logout = () => {
+    setUser(null);
+    try { localStorage.removeItem("lumen-user"); } catch { /* ignore */ }
+  };
   const [classes, setClasses] = useState(INITIAL_CLASSES);
   const [staff, setStaff] = useState(INITIAL_STAFF);
   const [students, setStudents] = useState(initial.students);
@@ -198,8 +215,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const store: Store = {
     user,
-    login: setUser,
-    logout: () => setUser(null),
+    hydrated,
+    login,
+    logout,
     classes, staff, students, sessions, labels, activity, federation, featureVectors, setFeatureVectors,
     institutionStatus, setInstitutionStatus, myClasses, period, player, setPlayer, log, reviewFocus, setReviewFocus,
     addClass: (name) => {
