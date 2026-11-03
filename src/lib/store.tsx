@@ -108,6 +108,7 @@ export function labelStatus(code: string, labels: Record<string, Label>, session
 
 interface Store {
   user: User | null;
+  hydrated: boolean;
   login: (u: User) => void;
   logout: () => void;
   classes: ClassInfo[];
