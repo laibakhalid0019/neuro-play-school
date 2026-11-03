@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, type AnyRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { LoginPanel } from "@/components/login-panel";
 import { DEMO_USERS, INSTITUTION, useStore, type User } from "@/lib/store";
@@ -27,7 +27,7 @@ function LoginPage() {
 
   const signIn = (asUser: User) => {
     login(asUser);
-    nav({ to: asUser.role === "Admin" ? "/admin" : "/dashboard" } as never);
+    nav({ to: asUser.role === "Admin" ? "/admin" : "/dashboard" });
   };
 
   const submit = (e: FormEvent) => {
@@ -73,6 +73,3 @@ function LoginPage() {
     </div>
   );
 }
-
-// Keep the unused import type out of the client bundle.
-export type { AnyRoute };
