@@ -75,12 +75,13 @@ export function Breadcrumbs({ items }: { items: { label: string; to?: LinkTarget
   );
 }
 
-export function AppLayout({ area, children, title, actions, breadcrumbs }: {
+export function AppLayout({ area, children, title, actions, breadcrumbs, back }: {
   area: "admin" | "staff";
   children: ReactNode;
   title: string;
   actions?: ReactNode;
   breadcrumbs?: { label: string; to?: LinkTarget }[];
+  back?: { to: BackTarget; label?: string };
 }) {
   const { user, logout, hydrated } = useStore();
   const nav = useNavigate();
@@ -118,6 +119,7 @@ export function AppLayout({ area, children, title, actions, breadcrumbs }: {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 pt-6 pb-24 md:px-6">
+        {back && <div className="mb-2"><PageBack to={back.to} label={back.label} /></div>}
         {breadcrumbs && <div className="mb-3">{breadcrumbs.length > 1 ? <Breadcrumbs items={breadcrumbs} /> : null}</div>}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-[28px] font-semibold leading-tight text-foreground">{title}</h1>
