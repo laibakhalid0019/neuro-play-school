@@ -26,7 +26,10 @@ function Dashboard() {
   const labelled = played.filter((c) => labels[c]).length;
   return (
     <AppLayout area="staff" title={`Welcome, ${user?.name ?? ""}`}
-      actions={<><Button asChild><Link to="/game-period">Start game period</Link></Button><Button asChild variant="outline"><Link to="/review">Sessions to label</Link></Button></>}>
+      actions={<>
+        <Button asChild><Link to="/game-period">Start game period</Link></Button>
+        <Button asChild variant="outline"><Link to="/review">Sessions to label</Link></Button>
+      </>}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="My classes" value={myClasses.length} />
         <StatCard label="Students" value={mine.length} />
@@ -34,8 +37,8 @@ function Dashboard() {
         <StatCard label="Labelled" value={`${labelled} of ${played.length}`} progress={played.length ? (labelled / played.length) * 100 : 0} />
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Card className="p-6 shadow-soft lg:col-span-2">
-          <h2 className="mb-3 text-lg font-bold text-navy">My classes</h2>
+        <Card className="p-6 lg:col-span-2">
+          <h2 className="mb-3 text-lg font-semibold text-foreground">My classes</h2>
           {myClasses.length ? (
             <ul className="divide-y">
               {myClasses.map((c) => {
@@ -43,7 +46,7 @@ function Dashboard() {
                 const l = n.filter((s) => labels[s.code]).length;
                 return (
                   <li key={c.id} className="flex items-center justify-between py-3">
-                    <div><p className="font-bold">{c.name}</p><p className="text-sm text-muted-foreground">{n.length} students · {l} labelled</p></div>
+                    <div><p className="font-semibold">{c.name}</p><p className="text-sm text-muted-foreground">{n.length} students, {l} labelled</p></div>
                     <Button asChild size="sm" variant="outline"><Link to="/classes">Open</Link></Button>
                   </li>
                 );
@@ -51,11 +54,11 @@ function Dashboard() {
             </ul>
           ) : <EmptyState title="No classes assigned" text="Ask your institution admin to assign you a class." />}
         </Card>
-        <Card className="p-6 shadow-soft">
-          <h2 className="mb-3 text-lg font-bold text-navy">Next steps</h2>
-          <ol className="space-y-3 text-sm">
-            {["Add students to a class", "Run a game period in the lab", "Review sessions and assign labels"].map((t, i) => (
-              <li key={t} className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber font-bold text-amber-foreground">{i + 1}</span>{t}</li>
+        <Card className="p-6">
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Next steps</h2>
+          <ol className="list-decimal space-y-2 pl-5 text-sm">
+            {["Add students to a class", "Run a game period in the lab", "Review sessions and assign labels"].map((t) => (
+              <li key={t}>{t}</li>
             ))}
           </ol>
         </Card>

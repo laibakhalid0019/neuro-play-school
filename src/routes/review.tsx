@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppLayout, EmptyState, LabelChip, NativeSelect } from "@/components/lumen";
@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/review")({
   head: () => ({
     meta: [
-      { title: "Review and Label — Lumen" },
+      { title: "Review and label — Lumen" },
       { name: "description", content: "Review recorded game sessions and assign Risk or No Risk screening labels." },
-      { property: "og:title", content: "Review and Label — Lumen" },
+      { property: "og:title", content: "Review and label — Lumen" },
       { property: "og:description", content: "Review recorded game sessions and assign Risk or No Risk screening labels." },
     ],
   }),
@@ -56,7 +56,7 @@ function Review() {
   };
 
   return (
-    <AppLayout area="staff" title="Review and Label"
+    <AppLayout area="staff" title="Review and label"
       actions={<>
         <NativeSelect aria-label="Class" value={cls} onChange={(e) => { setCls(e.target.value); setSelected(null); }}>{myClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</NativeSelect>
         <NativeSelect aria-label="Show" value={show} onChange={(e) => { setShow(e.target.value as typeof show); setSelected(null); }}>
@@ -65,42 +65,46 @@ function Review() {
       </>}>
       {!myClasses.length ? <EmptyState title="No classes assigned" text="Ask your institution admin to assign you a class." /> : (
         <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-          <Card className="max-h-[70vh] overflow-y-auto p-2 shadow-soft">
+          <Card className="max-h-[70vh] overflow-y-auto p-2">
             {list.length ? list.map((s) => (
               <button key={s.code} onClick={() => setSelected(s.code)}
-                className={cn("flex w-full items-center justify-between rounded-lg px-3 py-2 text-left font-mono text-sm font-semibold", s.code === code ? "bg-accent text-navy" : "hover:bg-muted")}>
+                className={cn("flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-medium", s.code === code ? "bg-accent text-teal" : "text-foreground hover:bg-muted")}>
                 {s.code}{labels[s.code] && <span className="h-2.5 w-2.5 rounded-full bg-success" aria-label="Labelled" />}
               </button>
             )) : <p className="p-4 text-center text-sm text-muted-foreground">{show === "unlabelled" ? "All students in this class are labelled." : "No students to show."}</p>}
           </Card>
           {current && code ? (
             <div className="space-y-6">
-              <div className="flex items-center gap-3"><h2 className="font-mono text-2xl font-extrabold text-navy">{code}</h2><LabelChip status={labelStatus(code, labels, sessions)} /></div>
-              <Card className="overflow-x-auto shadow-soft">
-                <h3 className="px-4 pt-4 font-bold text-navy">Recorded game sessions</h3>
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-xl font-semibold text-foreground">{code}</h2>
+                <LabelChip status={labelStatus(code, labels, sessions)} />
+                <Link to="/reports/$code" params={{ code }} className="text-sm font-semibold text-teal hover:underline">View report</Link>
+              </div>
+              <Card className="overflow-x-auto">
+                <h3 className="px-4 pt-4 text-base font-semibold text-foreground">Recorded game sessions</h3>
                 <table className="mt-2 w-full text-sm">
-                  <thead className="bg-secondary text-left text-navy"><tr>{["Date", "Session time", "Accuracy", "Errors", "Response time"].map((h) => <th key={h} className="px-4 py-2 font-bold">{h}</th>)}</tr></thead>
+                  <thead className="bg-secondary text-left text-muted-foreground"><tr>{["Date", "Session time", "Accuracy", "Errors", "Response time"].map((h) => <th key={h} className="px-4 py-2 font-medium">{h}</th>)}</tr></thead>
                   <tbody className="divide-y">
                     {mySessions.map((s) => <tr key={s.id}><td className="px-4 py-2">{s.date}</td><td className="px-4 py-2">{s.minutes} min</td><td className="px-4 py-2">{s.accuracy}%</td><td className="px-4 py-2">{s.errors}</td><td className="px-4 py-2">{s.rtMs} ms</td></tr>)}
                   </tbody>
                 </table>
               </Card>
               <div className="grid gap-6 xl:grid-cols-2">
-                <Card className="space-y-3 p-6 shadow-soft">
-                  <h3 className="font-bold text-navy">Screening estimate (model)</h3>
+                <Card className="space-y-3 p-6">
+                  <h3 className="text-base font-semibold text-foreground">Screening estimate (model)</h3>
                   {est ? <>
                     <LabelChip status={est.value} />
-                    <div className="h-3 overflow-hidden rounded-full bg-muted"><div className={cn("h-full", est.value === "Risk" ? "bg-risk" : "bg-success")} style={{ width: `${Math.round(est.prob * 100)}%` }} /></div>
-                    <p className="text-sm">Estimated probability of Risk: <b>{Math.round(est.prob * 100)}%</b></p>
+                    <div className="h-3 overflow-hidden rounded-sm bg-muted"><div className={cn("h-full", est.value === "Risk" ? "bg-risk" : "bg-success")} style={{ width: `${Math.round(est.prob * 100)}%` }} /></div>
+                    <p className="text-sm">Estimated probability of Risk: <span className="font-semibold">{Math.round(est.prob * 100)}%</span></p>
                   </> : <p className="text-sm text-muted-foreground">No estimate yet.</p>}
                   <p className="text-xs text-muted-foreground">Screening estimate, not a diagnosis. Shown for reference; your label is independent.</p>
                 </Card>
-                <Card className="space-y-3 p-6 shadow-soft">
-                  <h3 className="font-bold text-navy">Assign label</h3>
+                <Card className="space-y-3 p-6">
+                  <h3 className="text-base font-semibold text-foreground">Assign label</h3>
                   <div role="radiogroup" className="grid grid-cols-3 gap-2">
                     {([["risk", "Risk"], ["norisk", "No Risk"], ["none", "Leave unlabelled"]] as const).map(([v, l]) => (
                       <button key={v} role="radio" aria-checked={choice === v} onClick={() => setChoice(v)}
-                        className={cn("rounded-xl border-2 p-3 text-sm font-bold", choice === v ? "border-primary bg-accent text-navy" : "border-border text-muted-foreground hover:border-primary/50")}>{l}</button>
+                        className={cn("rounded-md border p-3 text-sm", choice === v ? "border-teal bg-accent font-semibold text-teal" : "border-border font-medium text-muted-foreground hover:border-teal")}>{l}</button>
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">Choose from your professional judgement. Leave it unlabelled if you are unsure. The label is saved as the target value for training.</p>

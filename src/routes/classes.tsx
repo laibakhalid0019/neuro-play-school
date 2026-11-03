@@ -28,7 +28,7 @@ function ClassesPage() {
         {myClasses.length > 0 && <NativeSelect aria-label="Class" value={classId} onChange={(e) => setSel(e.target.value)}>{myClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</NativeSelect>}
         <AddStudentDialog classes={myClasses} defaultClassId={classId} />
       </>}>
-      {classId ? <Card className="shadow-soft"><StudentTable classId={classId} showReview /></Card> : <EmptyState title="No classes assigned" text="Ask your institution admin to assign you a class." />}
+      {classId ? <Card><StudentTable classId={classId} showReview showReport /></Card> : <EmptyState title="No classes assigned" text="Ask your institution admin to assign you a class." />}
     </AppLayout>
   );
 }
